@@ -1,18 +1,36 @@
 <template>
   <div class="dashboard-container">
-    <el-card class="box-card">
-      <div slot="header" class="clearfix">
-        <span>我的工作台</span>
-      </div>
-      <div class="card-body">
-        <div class="avatar">
-          <img src="" alt="">
-        </div>
-        <div class="perInfo">
-          NNNNNN
-        </div>
-      </div>
-    </el-card>
+    <el-row  :gutter="20">
+      <el-col :span="16">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span>我的工作台</span>
+          </div>
+          <div class="card-body">
+            <div class="avatar">
+              <img src="" alt="">
+            </div>
+            <div class="perInfo">
+              NNNNNN
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :span="8">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span>消息</span>
+          </div>
+          <div class="card-body">
+            <div class="perInfo">
+              NNNNNN
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+    
+    
   </div>
   
 </template>
@@ -52,7 +70,5 @@ export default {
   .clearfix:after {
     clear: both
   }
-  .box-card {
-    width: 60%;
-  }
+  
 </style>
