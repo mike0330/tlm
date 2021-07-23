@@ -53,7 +53,7 @@ export const constantRoutes = [
       component: () => import('@/views/dashboard/index'),
       meta: { title: '首页', icon: 'el-icon-s-home' }
     }]
-  },
+  }, 
   {
     path:'/apply',
     component:Layout,
@@ -86,7 +86,7 @@ export const constantRoutes = [
     component:Layout,
     redirect:'/approval/approvalStart',
     name:'approval',
-    meta:{title:'审批',icon:''},
+    meta:{title:'审批',icon:'任务'},
     children:[
       {
         path: 'approvalStart',
@@ -116,7 +116,7 @@ export const constantRoutes = [
       path: 'statistics',
       name: 'statistics',
       component: () => import('@/views/statistics/index'),
-      meta: { title: '统计列表', icon: '' }
+      meta: { title: '统计列表', icon: '评分报告' }
     }]
   },
   // 404 page must be placed at the end !!!
