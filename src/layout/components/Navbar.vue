@@ -14,6 +14,9 @@
               首页
             </el-dropdown-item>
           </router-link>
+          <el-dropdown-item divided @click.native="changePermissions" >
+            <span style="display:block;">修改权限</span>
+          </el-dropdown-item>
           <el-dropdown-item divided >
             <span style="display:block;">修改密码</span>
           </el-dropdown-item>
@@ -24,6 +27,21 @@
         </el-dropdown-menu>
       </el-dropdown>
     </div>
+    <el-dialog
+      title="修改权限"
+      :visible.sync="dialogVisible"
+      width="30%"
+      :before-close="handleClose">
+      <el-cascader
+        v-model="value"
+        :options="options"
+        @change="handleChange">
+      </el-cascader>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -33,6 +51,11 @@ import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 
 export default {
+  data() {
+    return {
+      dialogVisible: false
+    }
+  },
   components: {
     Breadcrumb,
     Hamburger
@@ -50,6 +73,16 @@ export default {
     async logout() {
       await this.$store.dispatch('user/logout')
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+    },
+    changePermissions(){
+      this.dialogVisible = true
+    },
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done();
+        })
+        .catch(_ => {});
     }
   }
 }

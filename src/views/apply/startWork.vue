@@ -3,7 +3,7 @@
     <el-form ref="form" :model="form" label-width="140px">
       <el-form-item label="许可证类别">
         <el-cascader v-model="form.typePermit" :props="form.props" 
-          collapse-tags :options="form.options" @change="handleChange">
+          collapse-tags :options="form.options" >
         </el-cascader>
       </el-form-item>
       <el-form-item label="许可证编号">
@@ -35,7 +35,8 @@
           value-format="yyyy-MM-dd HH:mm"
           range-separator="至"
           start-placeholder="开始日期"
-          end-placeholder="结束日期">
+          end-placeholder="结束日期"
+          @change = "dateChange">
         </el-date-picker>
       </el-form-item>
       <el-form-item label="工作任务描述">
@@ -233,18 +234,26 @@ export default {
     },
     computed: {
       isSafetyChange(){
-        console.log(this.form.isSafety)
+        
       }
     },
     methods: {
       onSubmit(){
-        console.log(this.form.validityPermit)
       },
-      handleRemove(file, fileList) {
-        console.log(file, fileList);
+      dateChange(){
+        let starTime = new Date(this.form.validityPermit[0]).getTime()
+        let endTime = new Date(this.form.validityPermit[1]).getTime()
+        if(endTime - starTime > (8*3600*1000)) {
+          this.$message.error('许可证有效期不能超过8小时')
+          this.form.validityPermit = []
+        }
+        
       },
-      handlePreview(file) {
-        console.log(file);
+      handlePreview(){
+
+      },
+      handleRemove(){
+
       }
       
     }
