@@ -27,7 +27,7 @@ const mutations = {
   }
 }
 
-const actions = {
+const actions = { 
   // user login
   login({ commit }, userInfo) {
     const { username, password } = userInfo

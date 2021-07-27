@@ -4,7 +4,9 @@
       <el-col :span="16">
         <el-card class="box-card">
           <div slot="header" class="clearfix">
-            <span>我的工作台</span>
+            <div  class="item">
+              <span>我的工作台</span>
+            </div>
           </div>
           <div class="card-body">
             <div class="avatar">
@@ -19,7 +21,9 @@
       <el-col :span="8">
         <el-card class="box-card">
           <div slot="header" class="clearfix">
-            <span>消息</span>
+            <el-badge :value="1" :max="99" class="item">
+              <div class="message">消息</div>
+            </el-badge>
           </div>
           <div class="card-body">
             <div class="perInfo">
@@ -58,7 +62,10 @@ export default {
       line-height: 46px;
     }
   }
-
+  .item {
+    margin-top: 10px;
+    margin-right: 40px;
+  }
   .card-body{
     display: flex;
   }
@@ -69,6 +76,10 @@ export default {
   }
   .clearfix:after {
     clear: both
+  }
+  .message {
+    width: 40px;
+    text-align: center;
   }
   
 </style>
