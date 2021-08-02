@@ -52,7 +52,9 @@ import Hamburger from '@/components/Hamburger'
 export default {
   data() {
     return {
-      dialogVisible: false
+      value:'',
+      dialogVisible: false,
+      options:[]
     }
   },
   components: {
@@ -82,6 +84,9 @@ export default {
           done();
         })
         .catch(_ => {});
+    },
+    handleChange(){
+
     }
   }
 }

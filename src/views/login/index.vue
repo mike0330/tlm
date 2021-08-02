@@ -1,11 +1,9 @@
 <template>
   <div class="login-container">
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
-
       <div class="title-container">
         <h3 class="title">登录</h3>
       </div>
-
       <el-form-item prop="username">
         <span class="svg-container">
           <svg-icon icon-class="user" />
@@ -40,41 +38,79 @@
           <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
         </span>
       </el-form-item>
-
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
-
+      <el-form-item style="margin-left: 0px" prop="code">
+        <div class="el-row" span="24">
+          <div class="el-col el-col-16">
+            <span class="svg-container">
+              <i class="el-icon-s-promotion" />
+              <!-- <svg-icon icon-class="promotion" /> -->
+            </span>
+            <el-input type="text" maxlength="4" placeholder="请输入验证码" 
+              v-model="loginForm.code" clearable autocomplete="off">
+            </el-input>
+          </div>
+          <div class="el-col el-col-8">
+            <div class="login-code">
+              <span class="login-code-img" @click="onLoginCodeClick">
+                {{loginCode}}
+              </span>
+            </div>
+          </div>
+        </div>
+      </el-form-item>
+      <el-button :loading="loading" 
+        type="primary" 
+        style="width:100%;margin-bottom:30px;" 
+        @click.native.prevent="handleLogin">
+        登录
+      </el-button>
     </el-form>
   </div>
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
+import { setSession } from "@/utils/storage";
 
 export default {
   name: 'Login',
-  data() {
-    const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
-      } else {
+  data() { 
+    // 用户名验证
+    const validateUserName = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error("请输入用户名"));
+      }else{
         callback()
       }
-    }
+    };
+    // 密码验证
     const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error('The password can not be less than 6 digits'))
-      } else {
+      if (value === "") {
+        callback(new Error("请输入密码"));
+      }else{
         callback()
       }
-    }
+    };
+    // 验证码验证
+    const validateCode = (rule, value, callback) => {
+      if (value === "") {
+        callback(new Error("请输入验证码"));
+      } else if (value !== this.loginCode) {
+        callback(new Error("验证码输入错误"));
+      } else {
+        callback();
+      }
+    };
     return {
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        username: '147852369',
+        password: '12341234',
+        code:''
       },
+      loginCode:null,
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        username: [{ validator: validateUserName, trigger: "blur" }],
+        password: [{ validator: validatePassword, trigger: "blur" }],
+        code: [{ validator: validateCode, trigger: "blur" }],
       },
       loading: false,
       passwordType: 'password',
@@ -100,12 +136,18 @@ export default {
         this.$refs.password.focus()
       })
     },
+    onLoginCodeClick() {
+      this.loginCode = Math.random().toString(36).substr(-4);
+    },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
           this.$store.dispatch('user/login', this.loginForm).then(() => {
             this.$router.push({ path: this.redirect || '/' })
+            setTimeout(() => {
+              this.$message.success(`${this.loginForm.username}欢迎回来！`);
+            }, 300);
             this.loading = false
           }).catch(() => {
             this.loading = false
@@ -115,7 +157,11 @@ export default {
           return false
         }
       })
+      
     }
+  },
+  created(){
+    this.onLoginCodeClick()
   }
 }
 </script>
@@ -163,6 +209,33 @@ $cursor: #fff;
     background: rgba(0, 0, 0, 0.1);
     border-radius: 5px;
     color: #454545;
+    margin-bottom: 20px;
+  }
+  .login-code {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin: 0 0 0 10px;
+    .login-code-img {
+      margin-top: 7px;
+      width: 100px;
+      height: 38px;
+      background-color: #fdfdfd;
+      border: 1px solid #dcdfe6;
+      color: #333;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      line-height: 38px;
+      text-indent: 5px;
+      text-align: center;
+      cursor: pointer;
+      transition: all ease 0.2s;
+      &:hover {
+        border-color: #c0c4cc;
+        transition: all ease 0.2s;
+      }
+    }
   }
 }
 </style>

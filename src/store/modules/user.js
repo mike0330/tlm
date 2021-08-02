@@ -1,7 +1,7 @@
 import { login, logout, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
-
+import {setSession,clearSession} from '@/utils/storage'
 const getDefaultState = () => {
   return {
     token: getToken(),
@@ -24,7 +24,7 @@ const mutations = {
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
-  }
+  },
 }
 
 const actions = { 
@@ -32,10 +32,11 @@ const actions = {
   login({ commit }, userInfo) {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
+      login({ zhanghao: username.trim(), password: password }).then(response => {
         const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
+        console.log(response)
+        setSession("token", Math.random().toString(36).substr(0));
+        setSession("userInfo", { username: data.username, time: new Date().getTime() })
         resolve()
       }).catch(error => {
         reject(error)
@@ -52,7 +53,6 @@ const actions = {
         if (!data) {
           return reject('Verification failed, please Login again.')
         }
-
         const { name, avatar } = data
 
         commit('SET_NAME', name)
@@ -66,16 +66,17 @@ const actions = {
 
   // user logout
   logout({ commit, state }) {
-    return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
-        removeToken() // must remove  token  first
-        resetRouter()
-        commit('RESET_STATE')
-        resolve()
-      }).catch(error => {
-        reject(error)
-      })
-    })
+    // return new Promise((resolve, reject) => {
+    //   logout(state.token).then(() => {
+    //     removeToken() // must remove  token  first
+    //     resetRouter()
+    //     commit('RESET_STATE')
+    //     resolve()
+    //   }).catch(error => {
+    //     reject(error)
+    //   })
+    // })
+    clearSession()
   },
 
   // remove token
