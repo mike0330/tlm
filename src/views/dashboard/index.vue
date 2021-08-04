@@ -10,10 +10,15 @@
           </div>
           <div class="card-body">
             <div class="avatar">
-              <img src="" alt="">
+              <img src="" alt="" >
             </div>
             <div class="perInfo">
-              NNNNNN
+              <div>XXXXX</div>
+              <div>XXXXX</div>
+              <div>XXXXX</div>
+              <div class="btn">
+                <el-button type="info" plain size="medium">消息</el-button>            
+              </div>
             </div>
           </div>
         </el-card>
@@ -21,13 +26,13 @@
       <el-col :span="8">
         <el-card class="box-card">
           <div slot="header" class="clearfix">
-            <el-badge :value="1" :max="99" class="item">
-              <div class="message">消息</div>
-            </el-badge>
+            <div  class="item">
+              <span>文件列表</span>
+            </div>
           </div>
           <div class="card-body">
             <div class="perInfo">
-              NNNNNN
+              
             </div>
           </div>
         </el-card>
@@ -41,13 +46,26 @@
 
 <script>
 import { mapGetters } from 'vuex'
-
+import {getSession} from '@/utils/storage'
 export default {
   name: 'homePage',
+  data() {
+    return {
+      userInfo: {}
+    }
+  },
   computed: {
     ...mapGetters([
       'name'
     ])
+  },
+  methods:{
+    init () {
+      this.userInfo = getSession('userInfo')
+    }
+  },
+  created () {
+    this.init()
   }
 }
 </script>
@@ -68,6 +86,17 @@ export default {
   }
   .card-body{
     display: flex;
+    height: 120px;
+  }
+  .avatar{
+    width: 20%;
+  }
+  .perInfo{
+    width: 80%;
+    padding: 20px
+  }
+  .btn{
+    padding: 5px;
   }
   .clearfix:before,
   .clearfix:after {

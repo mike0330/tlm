@@ -1,7 +1,7 @@
 import { login, logout, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
-import {setSession,clearSession} from '@/utils/storage'
+import {setSession,getSession,clearSession} from '@/utils/storage'
 const getDefaultState = () => {
   return {
     token: getToken(),
@@ -36,7 +36,8 @@ const actions = {
         const { data } = response
         console.log(response)
         setSession("token", Math.random().toString(36).substr(0));
-        setSession("userInfo", { username: data.username, time: new Date().getTime() })
+        setSession("userInfo", data)
+        setSession("time", new Date().getTime())
         resolve()
       }).catch(error => {
         reject(error)
@@ -49,12 +50,10 @@ const actions = {
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
         const { data } = response
-
         if (!data) {
           return reject('Verification failed, please Login again.')
         }
         const { name, avatar } = data
-
         commit('SET_NAME', name)
         commit('SET_AVATAR', avatar)
         resolve(data)
