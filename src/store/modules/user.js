@@ -2,6 +2,7 @@ import { login, logout, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 import {setSession,getSession,clearSession} from '@/utils/storage'
+import { parse } from '_path-to-regexp@2.4.0@path-to-regexp'
 const getDefaultState = () => {
   return {
     token: getToken(),
@@ -26,15 +27,18 @@ const mutations = {
     state.avatar = avatar
   },
 }
-
 const actions = { 
   // user login
   login({ commit }, userInfo) {
-    const { username, password } = userInfo
     return new Promise((resolve, reject) => {
-      login({ zhanghao: username.trim(), password: password }).then(response => {
+      let data = {
+        telephone:userInfo.username,
+        password:userInfo.password
+      }
+      data = JSON.parse(JSON.stringify(data))
+      console.log(data)
+      login(data).then(response => {
         const { data } = response
-        console.log(response)
         setSession("token", Math.random().toString(36).substr(0));
         setSession("userInfo", data)
         setSession("time", new Date().getTime())

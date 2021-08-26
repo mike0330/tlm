@@ -12,16 +12,15 @@ import { clearSession, getSession } from "@/utils/storage";
 //   timeout: 5000 // request timeout
 // })
 const service = axios.create({
-  baseURL: 'http://192.168.1.148:8090', // url = base url + request url
+  baseURL: 'http://192.168.1.126:8099', // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000, // request timeout
-  headers: { "Content-Type": "application/json" }
+  headers: { "Content-Type": "application/x-www-form-urlencoded;charset=utf-8", }
 })
 // request interceptor
 service.interceptors.request.use(
   config => {
     // do something before request is sent
-
     if (store.getters.token) {
       // let each request carry token
       // ['X-Token'] is a custom headers key
@@ -51,11 +50,10 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
-
     // if the custom code is not 20000, it is judged as an error.
-    if (res.code !== 1) {
+    if (res.msg == "账号或密码错误") {
       Message({
-        message: res.message || 'Error',
+        message: res.msg || 'Error',
         type: 'error',
         duration: 5 * 1000
       })

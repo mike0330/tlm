@@ -3,7 +3,7 @@
     <el-form ref="form" :model="form" label-width="140px">
       <el-form-item label="许可证类别">
         <el-cascader v-model="form.typePermit" :props="form.props" 
-          collapse-tags :options="form.options" >
+          collapse-tags :options="form.typePerOpt" >
         </el-cascader>
       </el-form-item>
       <el-form-item label="许可证编号">
@@ -180,10 +180,13 @@
   </div>  
 </template>
 <script>
+import { mapGetters } from 'vuex'
+import {getSession} from '@/utils/storage'
 export default {
     data () {
       return {
         form: {
+          userInfo:'',
           props: { multiple: true },
           typePermit:'',
           permitNum:'',
@@ -206,7 +209,7 @@ export default {
             value:'xxxx1',
             label:'xxxx1',
           }],
-          options: [{
+          typePerOpt: [{
             value: '一级',
             label: '一级',
             children:[{
@@ -238,6 +241,10 @@ export default {
       }
     },
     methods: {
+      init(){
+        this.userInfo = getSession('userInfo')
+        this.form.permitNum = this.userInfo.remark+ '-' + new Date().getFullYear()
+      },
       onSubmit(){
       },
       dateChange(){
@@ -256,7 +263,10 @@ export default {
 
       }
       
-    }
+    },
+    mounted() {
+      this.init()
+    },
 }
 </script>
 <style lang="scss" scoped>

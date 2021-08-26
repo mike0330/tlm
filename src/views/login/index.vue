@@ -102,8 +102,8 @@ export default {
     };
     return {
       loginForm: {
-        username: '147852369',
-        password: '12341234',
+        username: '13231705185',
+        password: 'HBYTtxgs123@',
         code:''
       },
       loginCode:null,

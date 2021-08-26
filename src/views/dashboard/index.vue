@@ -10,12 +10,12 @@
           </div>
           <div class="card-body">
             <div class="avatar">
-              <img src="" alt="" >
+              <img src="../../../public/avatar.png" alt="" >
             </div>
             <div class="perInfo">
-              <div>XXXXX</div>
-              <div>XXXXX</div>
-              <div>XXXXX</div>
+              <div>姓名：{{userInfo.username}}</div>
+              <div>部门：{{userInfo.wellName}}</div>
+              <div>电话：{{userInfo.telephone}}</div>
               <div class="btn">
                 <el-button type="info" plain size="medium">消息</el-button>            
               </div>
@@ -38,8 +38,6 @@
         </el-card>
       </el-col>
     </el-row>
-    
-    
   </div>
   
 </template>
@@ -51,7 +49,8 @@ export default {
   name: 'homePage',
   data() {
     return {
-      userInfo: {}
+      userInfo: {},
+      imgUrl:''
     }
   },
   computed: {
@@ -90,6 +89,9 @@ export default {
   }
   .avatar{
     width: 20%;
+  }
+  .avatar img{
+    height: 100%;
   }
   .perInfo{
     width: 80%;
