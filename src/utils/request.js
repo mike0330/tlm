@@ -12,7 +12,7 @@ import { clearSession, getSession } from "@/utils/storage";
 //   timeout: 5000 // request timeout
 // })
 const service = axios.create({
-  baseURL: 'http://192.168.1.126:8099', // url = base url + request url
+  baseURL: 'https://zyxk.oilhb.com:8099', // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000, // request timeout
   headers: { "Content-Type": "application/x-www-form-urlencoded;charset=utf-8", }

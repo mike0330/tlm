@@ -102,7 +102,7 @@ export default {
     };
     return {
       loginForm: {
-        username: '13231705185',
+        username: '18632757793',
         password: 'HBYTtxgs123@',
         code:''
       },
@@ -110,7 +110,7 @@ export default {
       loginRules: {
         username: [{ validator: validateUserName, trigger: "blur" }],
         password: [{ validator: validatePassword, trigger: "blur" }],
-        code: [{ validator: validateCode, trigger: "blur" }],
+        // code: [{ validator: validateCode, trigger: "blur" }],
       },
       loading: false,
       passwordType: 'password',

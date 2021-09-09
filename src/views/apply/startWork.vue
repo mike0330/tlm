@@ -1,14 +1,24 @@
 <template>
   <div class="container">
     <el-form ref="form" :model="form" label-width="140px">
-      <el-form-item label="许可证类别">
-        <el-cascader v-model="form.typePermit" :props="form.props" 
-          collapse-tags :options="form.typePerOpt" >
-        </el-cascader>
-      </el-form-item>
-      <el-form-item label="许可证编号">
-        <el-input placeholder="请输入内容" v-model="form.permitNum" :disabled="true">
+      <el-form-item label="许可证编号" >
+        <el-input v-model="form.permitNum" :disabled="true">
         </el-input>
+      </el-form-item>
+      <el-form-item label="许可证类别">
+        <!-- <el-cascader v-model="form.typePermitRes" :props="form.props" 
+          collapse-tags :options="form.typePerOpt" v-on:blur="typePermitConfirm">
+        </el-cascader>  -->
+        <!-- <el-button type="primary" style="margin-left:40px">确定</el-button> -->
+        <el-input placeholder="点击选择" @click="showPermitTypeDialog">
+        </el-input>
+        <el-dialog title="许可证类型" :visible.sync="permitDialog" width="30%">
+          <span>这是一段信息</span>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="cancel">取 消</el-button>
+            <el-button type="primary" @click="confirm">确 定</el-button>
+          </span>
+        </el-dialog>
       </el-form-item>
       <el-form-item label="项目名称">
         <el-input placeholder="请输入内容"  v-model="form.projectName" >
@@ -182,91 +192,114 @@
 <script>
 import { mapGetters } from 'vuex'
 import {getSession} from '@/utils/storage'
+import {typePermit} from './typePermit'
+import {permitNumLast} from '@/api/apply'
 export default {
-    data () {
-      return {
-        form: {
-          userInfo:'',
-          props: { multiple: true },
-          typePermit:'',
-          permitNum:'',
-          projectName:'',
-          projectAddr:'',
-          validityPermit:'',//许可证有效期
-          desc:'',
-          isSafety:false,//是否有安全工作方案
-          isDrawings:false,//是否有图纸,
-          keyPeaple:'',//关键作业人,
-          writtenPer:'',//书面
-          writtenPerOpt:[{
-            value:'11111111111',
-            label:'张三'
-          }],
-          keyPeapleOptions:[{
-            value:'XXX',
-            label:'XXX'
-          },{
-            value:'xxxx1',
-            label:'xxxx1',
-          }],
-          typePerOpt: [{
-            value: '一级',
-            label: '一级',
-            children:[{
-              value: '一级1',
-              label: '一级1',
-            },{
-              value: '一级2',
-              label: '一级2',
-            }]
-          },{
-            value: '二级',
-            label: '二级',
-            children:[{
-              value: '二级1',
-              label: '二级1',
-            },{
-              value: '二级2',
-              label: '二级2',
-            }]
-          }],
-        },
-        fileList: [{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}, {name: 'food2.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}]
+  data () {
+    return {
+      userInfo:'',
+      permitDialog:false,//许可证类型对话框
+      form: {
+        props: { multiple: true },
+        typePermitRes:'',
+        permitNum:'',
+        projectName:'',
+        projectAddr:'',
+        validityPermit:'',//许可证有效期
+        desc:'',
+        isSafety:false,//是否有安全工作方案
+        isDrawings:false,//是否有图纸,
+        keyPeaple:'',//关键作业人,
+        writtenPer:'',//书面
+        writtenPerOpt:[{
+          value:'11111111111',
+          label:'张三'
+        }],
+        keyPeapleOptions:[{
+          value:'XXX',
+          label:'XXX'
+        },{
+          value:'xxxx1',
+          label:'xxxx1',
+        }],
+        typePerOpt: [],
+      },
+      fileList: [{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}, {name: 'food2.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}]
 
-      }
+    }
+  },
+  computed: {
+    isSafetyChange(){
+      
+    }
+  },
+  methods: {
+    init(){
+      this.userInfo = getSession('userInfo')
+      this.form.typePerOpt = typePermit
+      this.getPermitNum()
     },
-    computed: {
-      isSafetyChange(){
-        
-      }
-    },
-    methods: {
-      init(){
-        this.userInfo = getSession('userInfo')
-        this.form.permitNum = this.userInfo.remark+ '-' + new Date().getFullYear()
-      },
-      onSubmit(){
-      },
-      dateChange(){
-        let starTime = new Date(this.form.validityPermit[0]).getTime()
-        let endTime = new Date(this.form.validityPermit[1]).getTime()
-        if(endTime - starTime > (8*3600*1000)) {
-          this.$message.error('许可证有效期不能超过8小时')
-          this.form.validityPermit = []
+    getPermitNum (){
+      //获取许可证编号
+      permitNumLast({wellId:this.userInfo.wellId}).then(res => {
+        let numStr2 = ''
+        if(res.msg !== "null"){
+          let str = res.data
+          let numStr = str.split('-')[2]
+          let num = parseInt(numStr)
+          if(num <9) {
+            numStr2 = '00' + (num+=1) 
+          }else if(num >= 9 && num <= 98){
+            numStr2 = '0' + (num+=1)
+          }else if(num > 98){
+            numStr2 = '' + (num+=1)
+          }
+        }else{
+          numStr2 = '000'
         }
-        
-      },
-      handlePreview(){
+        this.form.permitNum = this.userInfo.remark + '-' + new Date().getFullYear() + '-' + numStr2
+      })
+    },
+    //许可证类型
+    showPermitTypeDialog(e){
+      //显示许可证类型对话框
+      console.log(111)
+      this.permitDialog = true
+    },
+    confirm(){
+      //点击确定
+      this.permitDialog = false
+    },
+    cancel(){
+      this.permitDialog = false
 
-      },
-      handleRemove(){
-
+    },
+    //许可证类型结束
+    onSubmit(){
+    },
+    dateChange(){
+      let starTime = new Date(this.form.validityPermit[0]).getTime()
+      let endTime = new Date(this.form.validityPermit[1]).getTime()
+      if(endTime - starTime > (8*3600*1000)) {
+        this.$message.error('许可证有效期不能超过8小时')
+        this.form.validityPermit = []
       }
       
     },
-    mounted() {
-      this.init()
+    handlePreview(){
+
     },
+    handleRemove(){
+
+    }
+    
+  },
+  created(){
+    this.init()
+  },
+  mounted() {
+    
+  },
 }
 </script>
 <style lang="scss" scoped>
@@ -275,6 +308,8 @@ export default {
     font-size: 30px;
     line-height: 46px;
   }
-  
+  .el-form-item{
+    width: 50%;
+  }
 
 </style>
