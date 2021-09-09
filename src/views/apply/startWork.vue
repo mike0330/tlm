@@ -6,14 +6,14 @@
         </el-input>
       </el-form-item>
       <el-form-item label="许可证类别">
-        <!-- <el-cascader v-model="form.typePermitRes" :props="form.props" 
-          collapse-tags :options="form.typePerOpt" v-on:blur="typePermitConfirm">
-        </el-cascader>  -->
+       
         <!-- <el-button type="primary" style="margin-left:40px">确定</el-button> -->
-        <el-input placeholder="点击选择" @click="showPermitTypeDialog">
+        <el-input placeholder="点击选择" @focus="showPermitTypeDialog">
         </el-input>
         <el-dialog title="许可证类型" :visible.sync="permitDialog" width="30%">
-          <span>这是一段信息</span>
+          <el-cascader v-model="form.typePermitRes" :props="form.props" 
+            collapse-tags :options="form.typePerOpt">
+          </el-cascader> 
           <span slot="footer" class="dialog-footer">
             <el-button @click="cancel">取 消</el-button>
             <el-button type="primary" @click="confirm">确 定</el-button>
@@ -263,12 +263,13 @@ export default {
     //许可证类型
     showPermitTypeDialog(e){
       //显示许可证类型对话框
-      console.log(111)
       this.permitDialog = true
+      
     },
     confirm(){
       //点击确定
       this.permitDialog = false
+      console.log(this.form.typePermitRes)
     },
     cancel(){
       this.permitDialog = false
