@@ -70,7 +70,6 @@
 
 <script>
 import { setSession } from "@/utils/storage";
-
 export default {
   name: 'Login',
   data() { 

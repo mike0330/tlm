@@ -6,6 +6,14 @@ export function login(data) {
     params:data
   })
 }
+export function getJurisdiction(data) {
+  //获取权限
+  return request({
+    url: '/Permit/id',
+    method: 'GET',
+    params:data
+  })
+}
 
 export function getInfo(token) {
   return request({

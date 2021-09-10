@@ -1,8 +1,9 @@
-import { login, logout, getInfo } from '@/api/user'
+import { login,getJurisdiction, logout, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 import {setSession,getSession,clearSession} from '@/utils/storage'
 import { parse } from '_path-to-regexp@2.4.0@path-to-regexp'
+// import set from 'core-js/fn/reflect/set'
 const getDefaultState = () => {
   return {
     token: getToken(),
@@ -36,12 +37,28 @@ const actions = {
         password:userInfo.password
       }
       data = JSON.parse(JSON.stringify(data))
-      console.log(data)
       login(data).then(response => {
         const { data } = response
         setSession("token", Math.random().toString(36).substr(0));
         setSession("userInfo", data)
         setSession("time", new Date().getTime())
+        if(response.msg == '登入成功'){
+          //获取登录人的权限
+          getJurisdiction({
+            userId:data.id
+          }).then(res => {
+            let permitArr = []
+            let permitIdArr = []
+            if(res.msg == '数据加载成功'){
+              res.data.forEach(item => {
+                permitArr.push(item.roleName)
+                permitIdArr.push(item.roleId)
+              })
+              setSession('permit',permitArr)
+              setSession('permitIds',permitIdArr)
+            }
+          })
+        }
         resolve()
       }).catch(error => {
         reject(error)
