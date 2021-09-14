@@ -1,35 +1,55 @@
 <template>
   <div class="container">
-    <el-table :data="tableData" style="width: 100%" max-height="250">
+    <el-table :data="applyData" style="width: 100%" max-height="250">
       <el-table-column
         fixed
-        prop="date"
-        label="日期"
+        prop="numberId"
+        label="许可证编号"
         width="150">
       </el-table-column>
       <el-table-column
-        prop="name"
-        label="姓名"
-        width="120">
+        prop="userName"
+        label="申请人"
+        width="100">
       </el-table-column>
       <el-table-column
-        prop="province"
-        label="省份"
-        width="120">
+        prop="safeUserName"
+        label="安全审批"
+        width="100">
       </el-table-column>
       <el-table-column
-        prop="city"
-        label="市区"
-        width="120">
+        prop="projectUserName"
+        label="工程审批"
+        width="100">
       </el-table-column>
       <el-table-column
-        prop="address"
-        label="地址"
-        width="300">
+        prop="produceUserName"
+        label="生产审批"
+        width="100">
       </el-table-column>
       <el-table-column
-        prop="zip"
-        label="邮编"
+        prop="deviceUserName"
+        label="设备审批"
+        width="100">
+      </el-table-column>
+      <el-table-column
+        prop="controlUserName"
+        label="监督"
+        width="100">
+      </el-table-column>
+      <el-table-column
+        prop="tutelageUserName"
+        label="监护"
+        width="100">
+      </el-table-column>
+      <el-table-column
+        prop="leadUserName"
+        label="领导"
+        width="100">
+      </el-table-column>
+      <el-table-column
+        prop="remark"
+        label="总状态"
         width="120">
       </el-table-column>
       <el-table-column
@@ -38,10 +58,17 @@
         width="120">
         <template slot-scope="scope">
           <el-button
-            @click.native.prevent="deleteRow(scope.$index, tableData)"
+            @click.native.prevent="detail(scope.row)"
             type="text"
             size="small">
-            移除
+            查看
+          </el-button>
+          <el-button 
+            v-show="scope.row.mark == 2"
+            @click.native.prevent="reApply(scope.row)"
+            type="text"
+            size="small">
+            重新申请
           </el-button>
         </template>
       </el-table-column>
@@ -49,12 +76,59 @@
   </div>  
 </template>
 <script>
+import { getApplyList } from '@/api/apply'
+import {getSession} from '@/utils/storage'
+import {typePermit} from './typePermit'
 export default {
-    data () {
-      return {
-        tableData:[]
-      }
+  data () {
+    return {
+      userInfo:'',
+      applyData:[]
     }
+  },
+  methods: {
+    init(){
+      this.userInfo = getSession('userInfo')
+      this.getInitData()
+    },
+    getInitData(){
+      getApplyList({mark:0,userId:this.userInfo.id}).then(res => {
+        //开工待审批
+        if(res.data.length > 0) {
+          res.data.forEach(item => {
+            this.applyData.push(item)
+          })
+        }
+      })
+      getApplyList({mark:1,userId:this.userInfo.id}).then(res => {
+        //开工审批通过
+        if(res.data.length > 0) {
+          res.data.forEach(item => {
+            this.applyData.push(item)
+          })
+        }
+      })
+      getApplyList({mark:2,userId:this.userInfo.id}).then(res => {
+        //开工审批拒绝
+        if(res.data.length > 0) {
+          res.data.forEach(item => {
+            this.applyData.push(item)
+          })
+        }
+      })
+    },
+    detail(row){
+      //查看详情
+      console.log(row)
+    },
+    reApply(){
+      //重新申请
+    }
+    
+  },
+  created() {
+    this.init()
+  },
 }
 </script>
 <style lang="scss" scoped>
