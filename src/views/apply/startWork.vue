@@ -80,8 +80,25 @@
           <div slot="tip" class="el-upload__tip">只能上传jpg/png文件</div>
         </el-upload>
       </el-form-item>
+      <el-form-item label="气体检查表">
+        <el-checkbox v-model="form.isGasImg">不涉及</el-checkbox>
+        <el-upload v-if="!form.isGasImg"
+          class="upload-demo"
+          ref="upload"
+          action="string"
+          accept="image/jpeg,image/png,image/jpg"
+          :multiple="true"
+          :on-remove="handleRemove"
+          :on-success="successUpload"
+          :before-upload="onBeforeUploadImage"
+          :http-request="(params) => UploadImage(params,3)"
+          :file-list="gasImgList"
+          list-type="picture-card">
+          <el-button size="small" type="primary">选择图片</el-button>
+          <div slot="tip" class="el-upload__tip">只能上传jpg/png文件</div>
+        </el-upload>
+      </el-form-item>
       <el-form-item label="工作前安全分析表" prop="uploadImg">
-        <div>   </div>
         <el-upload
           class="upload-demo"
           ref="upload"
@@ -94,23 +111,6 @@
           :before-upload="onBeforeUploadImage"
           :http-request="(params) => UploadImage(params,2)"
           :file-list="analysisList"
-          list-type="picture-card">
-          <el-button size="small" type="primary">选择图片</el-button>
-          <div slot="tip" class="el-upload__tip">只能上传jpg/png文件</div>
-        </el-upload>
-      </el-form-item>
-      <el-form-item label="气体检查表" prop="uploadImg">
-        <el-upload
-          class="upload-demo"
-          ref="upload"
-          action="string"
-          accept="image/jpeg,image/png,image/jpg"
-          :multiple="true"
-          :on-remove="handleRemove"
-          :on-success="successUpload"
-          :before-upload="onBeforeUploadImage"
-          :http-request="(params) => UploadImage(params,3)"
-          :file-list="gasImgList"
           list-type="picture-card">
           <el-button size="small" type="primary">选择图片</el-button>
           <div slot="tip" class="el-upload__tip">只能上传jpg/png文件</div>
@@ -278,12 +278,7 @@ export default {
       }
     };
     const validateImgList = (rule, value, callback) => {
-      // console.log(this.analysisList.length,'分析')
-      // console.log(this.gasImgList.length,'qiti')
-      // console.log(this.safePermitList.length,'anqzj')
-      // console.log(this.personalImgList.length,'renyuan')
-      // console.log(this.toolImgList.length,'gongqiju')
-      if(this.analysisList.length == 0 || this.gasImgList.length == 0 || this.safePermitList.length == 0 || this.personalImgList.length == 0 || this.toolImgList.length == 0){
+      if(this.analysisList.length == 0 || this.safePermitList.length == 0 || this.personalImgList.length == 0 || this.toolImgList.length == 0){
         callback(new Error('图片需要上传'))
       }else {
         callback()
@@ -305,6 +300,7 @@ export default {
         desc:'',
         isSafety:false,//是否有安全工作方案
         isDrawings:false,//是否有图纸,
+        isGasImg:false,//是否有气体检查表
         keyPerson:'',//关键作业人,
         typePerOpt: [],//许可证类型选项
         //审批人开始
@@ -474,10 +470,11 @@ export default {
         workName:this.form.projectName,
         workPlace:this.form.projectAddr,
         timeLimit:this.form.startTime,
-        sTime:this.form.endTime,
+        stime:this.form.endTime,
         taskName:this.form.desc,
         planId:this.form.isSafety ? 0 : 1,
         drawId:this.form.isDrawings ? 0 : 1,
+        gasId: this.form.isGasImg ? 1 : 0,
         man: this.form.keyPerson,
         produceUserId: this.form.prodApprovePer ? this.form.prodApprovePer.split('-')[0] : '',
         produceUserName: this.form.prodApprovePer ? this.form.prodApprovePer.split('-')[1] : '',
@@ -533,7 +530,7 @@ export default {
     isSafetyChange(e){
       this.form.isSafety = e
     },
-    isDrawingsChange(){
+    isDrawingsChange(e){
       this.form.isDrawings = e
     },
     //上传图片
