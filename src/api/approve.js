@@ -48,4 +48,15 @@ export function getLeaderApproveList(params) {
     params
   })
 }
+//审批
+export function approve(params) {
+  //收工申请&&审批
+  return request({
+    url:'/work/approval',
+    method:"GET",
+    params
+  })
+}
+
+
 //收工审批

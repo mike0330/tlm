@@ -66,13 +66,13 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-form ref="form" v-loading="formLoading" :model="form" label-width="110px">
+    <el-form ref="form" v-loading="formLoading" :rules="rules" :model="form" label-width="110px">
       <el-form-item label="许可证编号:"  >
         <el-input v-model="form.permitNum" :readonly="true">
         </el-input>
       </el-form-item>
       <el-form-item label="许可证类别:"  >
-        <el-row v-for="item in form.permitType" :key="item.id">
+        <el-row v-for="(item,index) in form.permitType" :key="index">
           <el-col >{{item.permitName}}:{{item.typeName}}</el-col>
         </el-row>
       </el-form-item>
@@ -127,21 +127,13 @@
         <el-image v-for="item in form.toolImgList" :key="item.id" :src="item.url">
         </el-image>
       </el-form-item>
+      <el-form-item label="审批意见:"  prop="approveIdea">
+        <el-input v-model="form.approveIdea" >
+        </el-input>
+      </el-form-item>
       <div class="btn-group">
-        <el-button type="primary" v-show="safeBtn">安全审批（同意）</el-button>
-        <el-button type="primary" v-show="projBtn">工程审批（同意）</el-button>
-        <el-button type="primary" v-show="prodBtn">生产审批（同意）</el-button>
-        <el-button type="primary" v-show="equipBtn">设备审批（同意）</el-button>
-        <el-button type="primary" v-show="superBtn">监督审批（同意）</el-button>
-        <el-button type="primary" v-show="tulBtn">监护审批（同意）</el-button>
-        <el-button type="primary" v-show="leaderBtn">领导审批（同意）</el-button>
-        <el-button type="danger" v-show="safeBtn">安全审批（拒绝）</el-button>
-        <el-button type="danger" v-show="projBtn">工程审批（拒绝）</el-button>
-        <el-button type="danger" v-show="prodBtn">生产审批（拒绝）</el-button>
-        <el-button type="danger" v-show="equipBtn">设备审批（拒绝）</el-button>
-        <el-button type="danger" v-show="superBtn">监督审批（拒绝）</el-button>
-        <el-button type="danger" v-show="tulBtn">监护审批（拒绝）</el-button>
-        <el-button type="danger" v-show="leaderBtn">领导审批（拒绝）</el-button>
+        <el-button type="primary" @click="agree"   >{{statusText}}审批（同意）</el-button>
+        <el-button type="danger"  @click="refuse"  >{{statusText}}审批（拒绝）</el-button>
       </div>
     </el-form>
   </div>    
@@ -154,7 +146,8 @@ import {
   getProdApproveList,
   getEquipApproveList,
   getSuperApproveList,
-  getLeaderApproveList
+  getLeaderApproveList,
+  approve
 } from '@/api/approve'
 import {getSession} from '@/utils/storage'
 export default {
@@ -163,6 +156,7 @@ export default {
       userInfo:getSession('userInfo'),
       formLoading:false,
       approveData:[],
+      premitId:'',//该条流水号的id
       form:{
         permitNum:'',
         permitType:[],
@@ -179,14 +173,15 @@ export default {
         gasImgList:[],//气体检查表3
         safePermitList:[],//安全措施4
         personalImgList:[],//人员资质5
-        toolImgList:[],//工器具合格证6
+        toolImgList:[],//工器具合格证6,
+        approveIdea:'',
       },
-      safeBtn: false,
-      projBtn: false,
-      prodBtn: false,
-      equipBtn: false,
-      superBtn: false,
-      tulBtn: false,
+      rules:{
+        approveIdea:[
+          {required:true,message:'审批意见必填',trigger: 'blur'}
+        ]
+      },
+      statusText:'',
       leaderBtn: false
     }
   },
@@ -295,6 +290,7 @@ export default {
       //查看详情
       console.log(row)
       this.formLoading = true
+      this.premitId = row.id
       this.form.permitNum = row.numberId
       this.form.projectName = row.workName
       this.form.projectAddr = row.workPlace
@@ -302,30 +298,7 @@ export default {
       this.form.startTime = row.timeLimit
       this.form.endTime = row.stime
       this.form.desc = row.taskName
-      //判断按钮的显示隐藏
-      switch (row.statusId ) {
-        case "safe": 
-          this.safeBtn = true
-          break
-        case 'proj':
-          this.projBtn = true
-          break
-        case 'prod':
-          this.prodBtn = true
-          break
-        case 'equip':
-          this.equipBtn = true
-          break
-        case 'super':
-          this.superBtn = true
-          break
-        case 'tutel':
-          this.tulBtn = true
-          break
-        case 'leader':
-          this.leaderBtn = true
-          break
-      }
+      this.statusText = row.statusName
       
       getPermitType({numberId:row.numberId}).then(res => {
         this.form.permitType = res.data
@@ -362,6 +335,156 @@ export default {
         this.formLoading = false
       })
       
+    },
+    agree(){
+      let a = new Date()
+      let time = a.getFullYear() + '/' + (a.getMonth()+1) + '/' + a.getDate() + ' ' + a.getHours() + ':' + a.getMinutes()
+      let params = ''
+      this.$refs.form.validate(valid => {
+        if(valid){
+          if(this.statusText == '安全'){
+            params = {
+              safeMark:1,
+              safeStime:time,
+              safeIdea:this.form.approveIdea,
+              id:this.premitId
+            }
+          }else if(this.statusText == '工程'){
+            params = {
+              projectMark:1,
+              projectStime:time,
+              projectIdaea:this.form.approveIdea,
+              id:this.premitId
+            }
+          }else if(this.statusText == '生产'){
+            params = {
+              produceMark:1,
+              produceTime:time,
+              produceIdea:this.form.approveIdea,
+              id:this.premitId
+            }
+          }else if(this.statusText == '设备'){
+            params = {
+              deviceMark:1,
+              deviceStime:time,
+              deviceIdea:this.form.approveIdea,
+              id:this.premitId
+            }
+          }else if(this.statusText == '监督'){
+            params = {
+              controStartMark:1,
+              controStartStime:time,
+              controStartIdea:this.form.approveIdea,
+              id:this.premitId
+            }
+          }else if(this.statusText == '监护'){
+            params = {
+              tutelageStartMark:1,
+              tutelageStartStime:time,
+              tutelageStartIdea:this.form.approveIdea,
+              id:this.premitId
+            }
+          }else if(this.statusText == '领导'){
+            params = {
+              leadStartMark:1,
+              leadStartStime:time,
+              leadStartIdea:this.form.approveIdea,
+              mark:1,
+              id:this.premitId
+            }
+          }
+          approve(params).then(res => {
+            if(res.msg == '审批完成'){
+              this.$message({
+                message: '审批完成（已同意）',
+                type: 'success'
+              })
+              this.$router.go(0)
+            }else{
+              this.$message.error('提交失败')
+            }
+          })
+        }
+      })
+    },
+    refuse(){
+      //拒绝
+      let a = new Date()
+      let time = a.getFullYear() + '/' + (a.getMonth()+1) + '/' + a.getDate() + ' ' + a.getHours() + ':' + a.getMinutes()
+      let params = ''
+      this.$refs.form.validate(valid => {
+        if(valid){
+          if(this.statusText == '安全'){
+            params = {
+              safeMark:1,
+              safeStime:time,
+              safeIdea:this.form.approveIdea,
+              id:this.premitId
+            }
+          }else if(this.statusText == '工程'){
+            params = {
+              projectMark:2,
+              projectStime:time,
+              projectIdaea:this.form.approveIdea,
+              id:this.premitId,
+              mark:2
+            }
+          }else if(this.statusText == '生产'){
+            params = {
+              produceMark:2,
+              produceTime:time,
+              produceIdea:this.form.approveIdea,
+              id:this.premitId,
+              mark:2
+            }
+          }else if(this.statusText == '设备'){
+            params = {
+              deviceMark:2,
+              deviceStime:time,
+              deviceIdea:this.form.approveIdea,
+              id:this.premitId,
+              mark:2
+            }
+          }else if(this.statusText == '监督'){
+            params = {
+              controStartMark:2,
+              controStartStime:time,
+              controStartIdea:this.form.approveIdea,
+              id:this.premitId,
+              mark:2
+            }
+          }else if(this.statusText == '监护'){
+            params = {
+              tutelageStartMark:2,
+              tutelageStartStime:time,
+              tutelageStartIdea:this.form.approveIdea,
+              id:this.premitId,
+              mark:2
+            }
+          }else if(this.statusText == '领导'){
+            params = {
+              leadStartMark:2,
+              leadStartStime:time,
+              leadStartIdea:this.form.approveIdea,
+              mark:2,
+              id:this.premitId
+            }
+          }
+          approve(params).then(res => {
+            console.log(res)
+            if(res.msg == '审批完成'){
+              this.$message({
+                message: '审批完成（已拒绝）',
+                type: 'success'
+              })
+              this.$router.go(0)
+            }else{
+              this.$message.error('提交失败')
+            }
+          })
+        }
+
+      })
     }
   },
   created() {

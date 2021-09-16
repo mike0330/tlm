@@ -79,6 +79,11 @@ export const constantRoutes = [
         component: () => import('@/views/apply/applyList'),
         meta: { title: '申请列表', icon: '' }
       },
+      {
+        path:'reApply',
+        name:'reApply',
+        component:() => import('@/views/apply/reApply')
+      }
     ]
   },
   {

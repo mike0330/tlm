@@ -251,16 +251,16 @@
 <script>
 import {getSession} from '@/utils/storage'
 import {typePermit} from './typePermit'
+import {getPermitImg} from '@/api/getInfo'
 import {
-  permitNumLast,
-  submitPermitType,
+  reApplyPermitType,
   getJurisdiction,
   getSuper,
   getLeader,
   upload,
   delImg,
   delAllImg,
-  submit
+  reApply
 } from '@/api/apply'
 export default {
   data () {
@@ -285,7 +285,8 @@ export default {
       }
     }
     return {
-      userInfo:'',
+      userInfo:getSession('userInfo'),
+      reApplyData:'',
       permitDialog:false,//许可证类型对话框
       form: {
         props: { multiple: true },
@@ -360,32 +361,69 @@ export default {
     
   },
   methods: {
-    init(){
-      this.userInfo = getSession('userInfo')
+    init(data){
       this.form.typePerOpt = typePermit
-      this.getPermitNum()
+      this.form.permitNum = data.numberId
+      this.form.projectName = data.workName
+      this.form.projectAddr = data.workPlace
+      this.form.keyPerson = data.man
+      // this.form.validityPermit = data
+      this.form.desc = data.taskName
+      this.form.safeApprovePer = data.safeUserId ? data.safeUserId + '-' + data.safeUserName : ''
+      this.form.projApprovePer = data.projectUserId ? data.produceUserId + '-' + data.safeUserName : ''
+      this.form.prodApprovePer = data.produceUserId ? data.produceUserId + '-' + data.produceUserName : ''
+      this.form.equipApprovePer = data.deviceUserId ? data.deviceUserId + '-' + data.deviceUserName : ''
+      this.form.super = data.controlUserId ? data.controlUserId + '-' + data.controlUserName : ''
+      this.form.tutelage = data.tutelageUserId ? data.tutelageUserId + '-' + data.tutelageUserName : ''
+      this.form.leader = data.leadUserId ? data.leadUserId + '-' + data.leadUserName : ''
       this.getApprovePerson()
-      this.deleteAllImg()
+      this.getImg(data.numberId)
     },
-    //获取许可证编号
-    getPermitNum (){
-      permitNumLast({wellId:this.userInfo.wellId}).then(res => {
-        let numStr2 = ''
-        if(res.msg !== "null"){
-          let str = res.data
-          let numStr = str.split('-')[2]
-          let num = parseInt(numStr)
-          if(num <9) {
-            numStr2 = '00' + (num+=1) 
-          }else if(num >= 9 && num <= 98){
-            numStr2 = '0' + (num+=1)
-          }else if(num > 98){
-            numStr2 = '' + (num+=1)
-          }
-        }else{
-          numStr2 = '000'
+    //获取图片
+    getImg(numberId){
+      getPermitImg({numberId:numberId}).then(res => {
+        if(res.data.length > 0) {
+          res.data.forEach(item => {
+            switch( item.typeId ){
+              case 0:
+                this.safeImgList.push(item)
+                break
+              case 1:
+                this.drawImgList.push(item)
+                break
+              case 2:
+                this.analysisList.push(item)
+                break
+              case 3:
+                this.gasImgList.push(item)
+                break
+              case 4:
+                this.safePermitList.push(item)
+                break
+              case 5:
+                this.personalImgList.push(item)
+                break
+              case 6:
+                this.toolImgList.push(item)
+                break
+            }
+          })
         }
-        this.form.permitNum = this.userInfo.remark + '-' + new Date().getFullYear() + '-' + numStr2
+        if(this.gasImgList.length > 0){
+          this.form.isGasImg = false
+        }else{
+          this.form.isGasImg = true
+        }
+        if(this.safeImgList.length >0) {
+          this.form.isSafety = true 
+        }else {
+          this.form.isSafety = false 
+        }
+        if(this.drawImgList.length > 0){
+          this.form.isDrawings = true
+        }else {
+          this.form.isDrawings = false
+        }
       })
     },
     //获取审批人
@@ -448,7 +486,7 @@ export default {
         numberId:this.form.permitNum,
         ids:resArr.toString()
       }
-      submitPermitType(params).then(res => {
+      reApplyPermitType(params).then(res => {
         if(res.msg =="提交成功"){
           this.$message({
             message: '提交成功',
@@ -504,7 +542,7 @@ export default {
       }
       this.$refs.form.validate(validator => {
         if(validator){
-          submit(data).then(res => {
+          reApply(data).then(res => {
             if(res.msg == '申请成功'){
               this.$message.success('申请成功')
               this.init()
@@ -517,12 +555,6 @@ export default {
       })
     },
     dateChange(){
-      // let starTime = new Date(this.form.validityPermit[0]).getTime()
-      // let endTime = new Date(this.form.validityPermit[1]).getTime()
-      // if(endTime - starTime > (8*3600*1000)) {
-      //   this.$message.error('许可证有效期不能超过8小时')
-      //   this.form.validityPermit = []
-      // }
       this.form.startTime = this.form.validityPermit[0]
       this.form.endTime = this.form.validityPermit[1]
     },
@@ -583,15 +615,19 @@ export default {
     errorUpload(err,file,fileList){
       this.$message('上传失败')
     },
-    deleteAllImg(){
-      let params = {number:this.form.permitNum}
-      delAllImg(params).then(res => {
-      })
-    },
+    // deleteAllImg(){
+    //   //删除全部图片
+    //   let params = {number:this.form.permitNum}
+    //   delAllImg(params).then(res => {
+    //   })
+    // },
     
   },
   created(){
-    this.init()
+    console.log(this.$route.params)
+    if(this.$route.params){
+      this.init(this.$route.params)
+    }
   },
   mounted() {
     

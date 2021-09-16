@@ -63,32 +63,165 @@
             size="small">
             查看
           </el-button>
-          <el-button 
-            v-show="scope.row.mark == 2"
-            @click.native.prevent="reApply(scope.row)"
-            type="text"
-            size="small">
-            重新申请
-          </el-button>
         </template>
       </el-table-column>
     </el-table>
+    <el-form ref="form" v-loading="formLoading"  :model="form" label-width="180px">
+      <el-form-item label="许可证编号:"  >
+        <el-input v-model="form.permitNum" :readonly="true">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="许可证类别:"  >
+        <el-row v-for="(item,index) in form.permitType" :key="index">
+          <el-col >{{item.permitName}}:{{item.typeName}}</el-col>
+        </el-row>
+      </el-form-item>
+      <el-form-item label="项目名称:"  >
+        <el-input v-model="form.projectName" :readonly="true">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="项目作业地点:"  >
+        <el-input v-model="form.projectAddr" :readonly="true">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="关键作业人员:"  >
+        <el-input v-model="form.keyPerson" :readonly="true">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="许可证有效期:"  >
+        <el-row >
+          <el-col>{{form.startTime}} -- {{form.endTime}} </el-col>
+        </el-row>
+      </el-form-item>
+      <el-form-item label="工作任务描述:" >
+        <el-input type="textarea" v-model="form.desc" :readonly="true"></el-input>
+      </el-form-item>
+      <el-form-item label="安全工作方案:" >
+        {{form.safeImgList.length>0 ? '是' : '否'}}
+        <el-image v-for="item in form.safeImgList" :key="item.id" :src="item.url">
+        </el-image>
+      </el-form-item>
+      <el-form-item label="图纸:" >
+        {{form.drawImgList.length>0 ? '是' : '否'}}
+        <el-image v-for="item in form.drawImgList" :key="item.id" :src="item.url">
+        </el-image>
+      </el-form-item>
+      <el-form-item label="气体检查:" >
+        {{form.gasImgList.length>0 ? '' : '不涉及'}}
+        <el-image v-for="item in form.gasImgList" :key="item.id" :src="item.url">
+        </el-image>
+      </el-form-item>
+      <el-form-item label="安全分析:" >
+        <el-image v-for="item in form.analysisList" :key="item.id" :src="item.url">
+        </el-image>
+      </el-form-item>
+      <el-form-item label="安全措施:" >
+        <el-image v-for="item in form.safePermitList" :key="item.id" :src="item.url">
+        </el-image>
+      </el-form-item>
+      <el-form-item label="人员资质:" >
+        <el-image v-for="item in form.personalImgList" :key="item.id" :src="item.url">
+        </el-image>
+      </el-form-item>
+      <el-form-item label="工、器具:" >
+        <el-image v-for="item in form.toolImgList" :key="item.id" :src="item.url">
+        </el-image>
+      </el-form-item>
+      <el-form-item label="安全审批意见:" v-show="form.safeIdea">
+        <el-input v-model="form.safeIdea"  :readonly="true">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="工程审批意见:" v-show="form.projIdea">
+        <el-input v-model="form.projIdea"  :readonly="true">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="生产审批意见:" v-show="form.prodIdea">
+        <el-input v-model="form.prodIdea" :readonly="true" >
+        </el-input>
+      </el-form-item>
+      <el-form-item label="设备审批意见:" v-show="form.equipIdea">
+        <el-input v-model="form.equipIdea"  :readonly="true">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="监督（开工）审批意见:" v-show="form.superIdea">
+        <el-input v-model="form.superIdea"  :readonly="true">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="监督（收工）审批意见:" v-show="form.superEndIdea">
+        <el-input v-model="form.superEndIdea"  :readonly="true">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="监护（开工）审批意见:" v-show="form.tultleIdea">
+        <el-input v-model="form.tultleIdea"  :readonly="true">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="监护（收工）审批意见:" v-show="form.tultleEndIdea">
+        <el-input v-model="form.tultleEndIdea"  :readonly="true">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="领导（开工）审批意见:" v-show="form.leaderIdea">
+        <el-input v-model="form.leaderIdea"  :readonly="true">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="领导（收工）审批意见:" v-show="form.leaderEndIdea">
+        <el-input v-model="form.leaderEndIdea"  :readonly="true">
+        </el-input>
+      </el-form-item>
+      <div class="btn-group">
+        <el-button type="primary" @click="reApply" v-show="reApplyBtn">重新申请</el-button>
+        <el-button type="danger"  @click="endReApply" v-show="endReApplyBtn">重新申请</el-button>
+      </div>
+    </el-form>
   </div>  
 </template>
 <script>
 import { getApplyList } from '@/api/apply'
+import { approve} from '@/api/approve'
+import {getPermitType,getPermitImg} from '@/api/getInfo'
 import {getSession} from '@/utils/storage'
-import {typePermit} from './typePermit'
 export default {
   data () {
     return {
-      userInfo:'',
-      applyData:[]
+      userInfo:getSession('userInfo'),
+      formLoading:false,
+      applyData:[],
+      premitId:'',//该条流水号的id
+      reApplyData:'',//重新申请的数据
+      form:{
+        permitNum:'',
+        permitType:[],
+        projectName:'',//
+        projectAddr:'',
+        keyPerson:'',
+        startTime:'',
+        endTime:'',
+        desc:'',
+        imgList:[],
+        safeImgList: [],//安全工作方案0
+        drawImgList:[],//图纸1
+        analysisList:[],//安全分析2
+        gasImgList:[],//气体检查表3
+        safePermitList:[],//安全措施4
+        personalImgList:[],//人员资质5
+        toolImgList:[],//工器具合格证6,
+        approveIdea:'',
+        safeIdea:'' ,
+        projIdea:'' ,
+        prodIdea:'' ,
+        equipIdea:'' ,
+        tultleIdea:'' ,
+        superIdea:'' ,
+        leaderIdea:'' ,
+        tutelEndIdea:'',
+        superEndIdea:'',
+        leaderEndIdea:''
+      },
+      reApplyBtn:false,
+      endReApplyBtn:false
     }
   },
   methods: {
     init(){
-      this.userInfo = getSession('userInfo')
       this.getInitData()
     },
     getInitData(){
@@ -116,13 +249,134 @@ export default {
           })
         }
       })
+      getApplyList({mark:3,userId:this.userInfo.id}).then(res => {
+        //收工待审批
+        if(res.data.length > 0) {
+          res.data.forEach(item => {
+            this.applyData.push(item)
+          })
+        }
+      })
+      getApplyList({mark:4,userId:this.userInfo.id}).then(res => {
+        //收工审批通过
+        if(res.data.length > 0) {
+          res.data.forEach(item => {
+            this.applyData.push(item)
+          })
+        }
+      })
+      getApplyList({mark:5,userId:this.userInfo.id}).then(res => {
+        //收工审批退回
+        if(res.data.length > 0) {
+          res.data.forEach(item => {
+            this.applyData.push(item)
+          })
+        }
+      })
     },
     detail(row){
       //查看详情
       console.log(row)
+      this.reApplyData = row
+      if(row.mark == 2){
+        this.reApplyBtn = true
+        this.endReApplyBtn = false
+      }else if(row.mark == 5){
+        this.endReApplyBtn =true
+        this.reApplyBtn = false
+      }else {
+        this.reApplyBtn = false
+        this.endReApplyBtn = false
+      }
+      this.form.safeImgList = []
+      this.form.drawImgList = []
+      this.form.analysisList = []
+      this.form.gasImgList = []
+      this.form.safePermitList = []
+      this.form.personalImgList = []
+      this.form.toolImgList = []
+      this.formLoading = true
+      this.premitId = row.id
+      this.form.permitNum = row.numberId
+      this.form.projectName = row.workName
+      this.form.projectAddr = row.workPlace
+      this.form.keyPerson = row.man
+      this.form.startTime = row.timeLimit
+      this.form.endTime = row.stime
+      this.form.desc = row.taskName
+      //审批意见
+      this.form.safeIdea= row.safeIdea
+      this.form.projIdea= row. projcetIdea
+      this.form.prodIdea= row.produceIdea
+      this.form.equipIdea= row.deviceIdea
+      this.form.tultleIdea= row.tutelageStartIdea
+      this.form.tutelEndIdea = row.tutelageEndIdea
+      this.form.superIdea= row.controStartIdea
+      this.form.superEndIdea = row.controEndIdea
+      this.form.leaderIdea= row.leadStartIdea
+      this.form.leaderEndIdea = row.leadEndIdea
+
+      getPermitType({numberId:row.numberId}).then(res => {
+        this.form.permitType = res.data
+        this.formLoading = false
+      })
+      getPermitImg({numberId:row.numberId}).then(res => {
+        if(res.data.length > 0) {
+          res.data.forEach(item => {
+            switch( item.typeId ){
+              case 0:
+                this.form.safeImgList.push(item)
+                break
+              case 1:
+                this.form.drawImgList.push(item)
+                break
+              case 2:
+                this.form.analysisList.push(item)
+                break
+              case 3:
+                this.form.gasImgList.push(item)
+                break
+              case 4:
+                this.form.safePermitList.push(item)
+                break
+              case 5:
+                this.form.personalImgList.push(item)
+                break
+              case 6:
+                this.form.toolImgList.push(item)
+                break
+            }
+          })
+        }
+        this.formLoading = false
+      })
     },
     reApply(){
-      //重新申请
+      //开工重新申请
+      console.log(this.reApplyData)
+      this.$router.push({ name: 'reApply',params:this.reApplyData })
+
+    },
+    endReApply(){
+      //收工重新申请
+      let params={
+        mark:3,
+        id:this.premitId,
+        controEndMark:0,
+        tutelageEndMark:0,
+        leadEndMark:0
+      }
+      approve(params).then(res => {
+        if(res.mag == '审批完成'){
+          this.$message({
+            message:'提交成功',
+            type:'success'
+          })
+          this.$router.go(0)
+        }else {
+          this.$message.error('提交失败')
+        }
+      })
     }
     
   },
@@ -136,5 +390,22 @@ export default {
     margin: 30px;
     font-size: 30px;
     line-height: 46px;
+  }
+  .el-form {
+    padding-top: 50px;
+  }
+  .el-input {
+    width: 50%;
+  }
+  .leader{
+    margin-top: 20px;
+  }
+  .el-image {
+    margin-left:20px;
+    width: 100px; 
+    height: 100px
+  }
+  .btn-group{
+    text-align: center;
   }
 </style>

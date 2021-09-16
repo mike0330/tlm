@@ -13,6 +13,14 @@ export function submitPermitType(params) {
     params
   })
 }
+export function reApplyPermitType(params) {
+  //重新申请的提交许可证类型
+  return request({
+    url:'/Permit/inset',
+    method:"GET",
+    params
+  })
+}
 export function getJurisdiction(params) {
   //获取书面审批人
   return request({
@@ -69,6 +77,15 @@ export function submit(data) {
     params:data
   })
 }
+export function reApply(data) {
+  //重新申请
+  return request({
+    url:'/work/Update_compile',
+    method:"POST",
+    params:data
+  })
+}
+
 export function getApplyList(params) {
   return request({
     url:'/work/mark_all',

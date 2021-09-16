@@ -92,24 +92,8 @@ export default {
       this.getEndWorkData()
     },
     getEndWorkData(){
-      getApplyList({mark:3,userId:this.userInfo.id}).then(res => {
-        //开工待审批
-        if(res.data.length > 0) {
-          res.data.forEach(item => {
-            this.endWorkData.push(item)
-          })
-        }
-      })
-      getApplyList({mark:4,userId:this.userInfo.id}).then(res => {
-        //开工待审批
-        if(res.data.length > 0) {
-          res.data.forEach(item => {
-            this.endWorkData.push(item)
-          })
-        }
-      })
-      getApplyList({mark:5,userId:this.userInfo.id}).then(res => {
-        //开工待审批
+      getApplyList({mark:1,userId:this.userInfo.id}).then(res => {
+        //开工待通过后才能申请收工
         if(res.data.length > 0) {
           res.data.forEach(item => {
             this.endWorkData.push(item)
