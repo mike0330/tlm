@@ -14,10 +14,7 @@
               首页
             </el-dropdown-item>
           </router-link>
-          <el-dropdown-item divided @click.native="changePermissions" >
-            <span style="display:block;">修改权限</span>
-          </el-dropdown-item>
-          <el-dropdown-item divided >
+          <el-dropdown-item divided @click.native="changePassword">
             <span style="display:block;">修改密码</span>
           </el-dropdown-item>
           <el-dropdown-item divided @click.native="logout">
@@ -26,19 +23,18 @@
         </el-dropdown-menu>
       </el-dropdown>
     </div>
-    <el-dialog
-      title="修改权限"
-      :visible.sync="dialogVisible"
-      width="30%"
-      :before-close="handleClose">
-      <el-cascader
-        v-model="value"
-        :options="options"
-        @change="handleChange">
-      </el-cascader>
+    <el-dialog title="修改密码" :visible.sync="dialogVisible" width="30%">
+      <el-form :model="form" :rules="rules" label-width="100px">
+        <el-form-item  label="新密码" prop="newPassword">
+          <el-input v-model="form.newPassword" show-password></el-input>
+        </el-form-item>
+        <el-form-item  label="重复新密码"  prop="reNewPassword">
+          <el-input v-model="form.reNewPassword" show-password></el-input>
+        </el-form-item>
+      </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button type="primary" @click="confirm" >确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -46,15 +42,37 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import {changePassword} from '@/api/user'
+import {getSession} from '@/utils/storage'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 
 export default {
+  
   data() {
+    const valPassword  = (rule, value, callback) => {
+      if(this.form.newPassword == this.form.reNewPassword){
+        callback()
+      } else {
+        callback(new Error("两次输入不一致"))
+      }
+    } 
     return {
       value:'',
+      userInfo:getSession('userInfo'),
       dialogVisible: false,
-      options:[]
+      form:{
+        newPassword:'',
+        reNewPassword:''
+      },
+      rules:{
+        newPassword:[
+          {required:true,message:'新密码必填',trigger:'blur'}
+        ],
+        reNewPassword:[
+          {required:true,validator:valPassword,trigger:'blur'}
+        ]
+      }
     }
   },
   components: {
@@ -75,19 +93,22 @@ export default {
       await this.$store.dispatch('user/logout')
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
     },
-    changePermissions(){
+    changePassword(){
+      //修改密码
       this.dialogVisible = true
     },
-    handleClose(done) {
-      this.$confirm('确认关闭？')
-        .then(_ => {
-          done();
-        })
-        .catch(_ => {});
-    },
-    handleChange(){
-
+    confirm(){
+      this.$refs.form.validate(valid => {
+        if(valid){
+          changePassword({id:this.userInfo.id,password:this.form.newPassword}).then(res => {
+            if(res.data){
+              this.logout()
+            }
+          })
+        }
+      })
     }
+    
   }
 }
 </script>

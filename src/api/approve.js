@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-//开工审批
+//开工审批数据
 export function getSafeApproveList(params) {
   //安全待审批
   return request({
@@ -44,6 +44,32 @@ export function getLeaderApproveList(params) {
   //领导待审批
   return request({
     url:'/work/lead_approva',
+    method:"GET",
+    params
+  })
+}
+//收工审批数据
+export function getEndSuperApproveList(params) {
+  //监督、监护需要审批的数据（收工）
+  return request({
+    url:'/work/supervise_tutelage',
+    method:"GET",
+    params
+  })
+}
+export function getEndLeaderApproveList(params) {
+  //领导需要审批的数据（收工）
+  return request({
+    url:'/work/lead_approva_one',
+    method:"GET",
+    params
+  })
+}
+//登录人审批过的数据
+export function getApproveList(params) {
+  //收工申请&&审批
+  return request({
+    url:'/work/state_All',
     method:"GET",
     params
   })

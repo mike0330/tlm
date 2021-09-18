@@ -14,7 +14,14 @@ export function getJurisdiction(data) {
     params:data
   })
 }
-
+//修改密码
+export function changePassword(data) {
+  return request({
+    url: '/Update',
+    method: 'GET',
+    params:data
+  })
+}
 export function getInfo(token) {
   return request({
     url: '/vue-admin-template/user/info',

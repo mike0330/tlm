@@ -543,10 +543,10 @@ export default {
       this.$refs.form.validate(validator => {
         if(validator){
           reApply(data).then(res => {
-            if(res.msg == '申请成功'){
+            if(res.msg == '编辑成功'){
               this.$message.success('申请成功')
-              this.init()
               this.$router.go(0)
+              this.$router.push({path:'/'})
             }
           })
         }else {
