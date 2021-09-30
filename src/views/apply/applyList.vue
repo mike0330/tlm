@@ -1,9 +1,12 @@
 <template>
   <div class="container">
-    <el-table :data="applyData" style="width: 100%" max-height="250">
+    <el-table :data="applyData" 
+    :default-sort = "{prop: 'numberId', order: 'descending'}" 
+    style="width: 100%" max-height="250">
       <el-table-column
         fixed
         prop="numberId"
+        sortable
         label="许可证编号"
         width="150">
       </el-table-column>
@@ -155,8 +158,8 @@
         <el-input v-model="form.tultleIdea"  :readonly="true">
         </el-input>
       </el-form-item>
-      <el-form-item label="监护（收工）审批意见:" v-show="form.tultleEndIdea">
-        <el-input v-model="form.tultleEndIdea"  :readonly="true">
+      <el-form-item label="监护（收工）审批意见:" v-show="form.tutelEndIdea">
+        <el-input v-model="form.tutelEndIdea"  :readonly="true">
         </el-input>
       </el-form-item>
       <el-form-item label="领导（开工）审批意见:" v-show="form.leaderIdea">
@@ -165,6 +168,14 @@
       </el-form-item>
       <el-form-item label="领导（收工）审批意见:" v-show="form.leaderEndIdea">
         <el-input v-model="form.leaderEndIdea"  :readonly="true">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="公司领导（开工）审批意见:" v-show="form.leaderShipIdea ">
+        <el-input v-model="form.leaderShipIdea"  :readonly="true">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="公司领导（收工）审批意见:" v-show="form.leaderShipEndIdea">
+        <el-input v-model="form.leaderShipEndIdea"  :readonly="true">
         </el-input>
       </el-form-item>
       <div class="btn-group">
@@ -214,7 +225,9 @@ export default {
         leaderIdea:'' ,
         tutelEndIdea:'',
         superEndIdea:'',
-        leaderEndIdea:''
+        leaderEndIdea:'',
+        leaderShipIdea:'',
+        leaderShipEndIdea:'',
       },
       reApplyBtn:false,
       endReApplyBtn:false
@@ -315,6 +328,8 @@ export default {
       this.form.superEndIdea = row.controEndIdea
       this.form.leaderIdea= row.leadStartIdea
       this.form.leaderEndIdea = row.leadEndIdea
+      this.form.leaderShipIdea = row.leaderShipIdea
+      this.form.leaderShipEndIdea = row.leaderShipEndIdea
 
       getPermitType({numberId:row.numberId}).then(res => {
         this.form.permitType = res.data

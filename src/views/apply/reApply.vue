@@ -492,6 +492,7 @@ export default {
             message: '提交成功',
             type: 'success'
           });
+          
         }else{
           this.$message.error('提交失败，请重新选择')
         }
@@ -545,8 +546,10 @@ export default {
           reApply(data).then(res => {
             if(res.msg == '编辑成功'){
               this.$message.success('申请成功')
-              this.$router.go(0)
-              this.$router.push({path:'/'})
+              // this.$router.go(0)
+              // this.$router.push({path:'/'})
+              // this.$router.push({ name: 'reApply',params:this.reApplyData })
+              this.$router.push({name:'Dashboard'})
             }
           })
         }else {

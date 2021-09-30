@@ -45,6 +45,13 @@ export function getLeader(params) {
     params
   })
 }
+export function getComLeader() {
+  //获取公司领导
+  return request({
+    url:'/Permit/lead_all',
+    method:"GET",
+  })
+}
 export function upload(data) {
   //上传图片
   return request({

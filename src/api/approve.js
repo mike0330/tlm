@@ -48,6 +48,14 @@ export function getLeaderApproveList(params) {
     params
   })
 }
+export function getComLeaderApproveList(params) {
+  //公司领导待审批
+  return request({
+    url:'/work/LeaderShipId',
+    method:"GET",
+    params
+  })
+}
 //收工审批数据
 export function getEndSuperApproveList(params) {
   //监督、监护需要审批的数据（收工）
@@ -65,9 +73,16 @@ export function getEndLeaderApproveList(params) {
     params
   })
 }
+export function getEndComLeaderApproveList(params) {
+  //公司领导需要审批的数据（收工）
+  return request({
+    url:'/work/LeaderShipEndId',
+    method:"GET",
+    params
+  })
+}
 //登录人审批过的数据
 export function getApproveList(params) {
-  //收工申请&&审批
   return request({
     url:'/work/state_All',
     method:"GET",
@@ -83,6 +98,21 @@ export function approve(params) {
     params
   })
 }
-
+export function leaderApprove(params) {
+  //领导审批(开工)
+  return request({
+    url:'/work/Leader',
+    method:"GET",
+    params
+  })
+}
+export function leaderApproveCom(params) {
+  //领导审批(收工)
+  return request({
+    url:'/work/Leader_Stop',
+    method:"GET",
+    params
+  })
+}
 
 //收工审批

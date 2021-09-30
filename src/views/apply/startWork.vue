@@ -240,6 +240,16 @@
               </el-option>
             </el-select>
           </el-col>
+          <el-col :span="6">
+            <el-select v-model="form.comleader" clearable placeholder="请选择公司领导">
+              <el-option
+                v-for="item in form.comleaderOpt"
+                :key="item.id"
+                :label="`${item.userName}-${item.telephone}`"
+                :value="`${item.userId}-${item.userName}`">
+              </el-option>
+            </el-select>
+          </el-col>
         </el-row>
       </el-form-item>
       <el-form-item style="text-align: center;margin-top: 24px;">
@@ -257,6 +267,7 @@ import {
   getJurisdiction,
   getSuper,
   getLeader,
+  getComLeader,
   upload,
   delImg,
   delAllImg,
@@ -317,7 +328,9 @@ export default {
         tutelageOpt:[],
         tutelage:'',
         leaderOpt:[],
-        leader:''
+        leader:'',
+        comleader:'',
+        comleaderOpt:[]
         //审批人结束
       },
       //上传图片
@@ -416,8 +429,10 @@ export default {
         })
       })
       getLeader(params).then(res => {
-        
         this.form.leaderOpt = res.data
+      })
+      getComLeader().then(res => {
+        this.form.comleaderOpt = res.data
       })
     },
     //许可证类型
@@ -490,6 +505,8 @@ export default {
         tutelageUserName:this.form.tutelage ? this.form.tutelage.split('-')[1] : '',
         leadUserId:this.form.leader ? this.form.leader.split('-')[0] : '',
         leadUserName:this.form.leader ? this.form.leader.split('-')[1] : '',
+        leaderShipId:this.form.comleader ? this.form.comleader.split('-')[0] : '',
+      leaderShipName:this.form.comleader ? this.form.comleader.split('-')[1] : '',
         produceMark:0,
         deviceMark:0,
         safeMark:0,
@@ -544,6 +561,9 @@ export default {
       upload(data).then(res => {
         if(res.msg == '上传成功'){
           params.onSuccess(res)
+        }else if(res.msg == "文件名重复"){
+          params.onError(res)
+          this.$message.error(`${res.msg}`)
         }
       }).catch(err => {
         params.onError(err)
@@ -581,10 +601,12 @@ export default {
       }
     },
     errorUpload(err,file,fileList){
-      this.$message('上传失败')
+      console.log(err)
+      // this.$message('上传失败')
     },
     deleteAllImg(){
       let params = {number:this.form.permitNum}
+      console.log(params)
       delAllImg(params).then(res => {
       })
     },

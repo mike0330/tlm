@@ -16,9 +16,9 @@
               <div>姓名：{{userInfo.username}}</div>
               <div>部门：{{userInfo.wellName}}</div>
               <div>电话：{{userInfo.telephone}}</div>
-              <div class="btn">
+              <!-- <div class="btn">
                 <el-button type="info" plain size="medium">消息</el-button>            
-              </div>
+              </div> -->
             </div>
           </div>
         </el-card>

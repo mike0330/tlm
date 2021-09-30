@@ -1,9 +1,12 @@
 <template>
   <div class="container">
-    <el-table :data="approveData" style="width: 100%" max-height="250">
+    <el-table :data="approveData" 
+    :default-sort = "{prop: 'numberId', order: 'descending'}" 
+    style="width: 100%" max-height="250">
       <el-table-column
         fixed
         prop="numberId"
+        sortable
         label="许可证编号"
         width="150">
       </el-table-column>
@@ -147,7 +150,9 @@ import {
   getEquipApproveList,
   getSuperApproveList,
   getLeaderApproveList,
-  approve
+  getComLeaderApproveList,
+  approve,
+  leaderApprove
 } from '@/api/approve'
 import {getSession} from '@/utils/storage'
 export default {
@@ -285,10 +290,28 @@ export default {
           });
         }
       })
+
+      getComLeaderApproveList({leaderShipId:this.userInfo.id}).then(res => {
+        if(res.data.length > 0) {
+          res.data.forEach(item => {
+            //添加状态
+            this.$set(item,'statusId','comleader')
+            this.$set(item,'statusName','公司领导')
+            this.approveData.push(item)
+          });
+        }
+      })
     },
     detail(row){
       //查看详情
       console.log(row)
+      this.form.safeImgList = []
+      this.form.drawImgList = []
+      this.form.analysisList = []
+      this.form.gasImgList = []
+      this.form.safePermitList = []
+      this.form.personalImgList = []
+      this.form.toolImgList = []
       this.formLoading = true
       this.premitId = row.id
       this.form.permitNum = row.numberId
@@ -349,6 +372,17 @@ export default {
               safeIdea:this.form.approveIdea,
               id:this.premitId
             }
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已同意）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
           }else if(this.statusText == '工程'){
             params = {
               projectMark:1,
@@ -356,6 +390,17 @@ export default {
               projectIdaea:this.form.approveIdea,
               id:this.premitId
             }
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已同意）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
           }else if(this.statusText == '生产'){
             params = {
               produceMark:1,
@@ -363,6 +408,17 @@ export default {
               produceIdea:this.form.approveIdea,
               id:this.premitId
             }
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已同意）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
           }else if(this.statusText == '设备'){
             params = {
               deviceMark:1,
@@ -370,6 +426,17 @@ export default {
               deviceIdea:this.form.approveIdea,
               id:this.premitId
             }
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已同意）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
           }else if(this.statusText == '监督'){
             params = {
               controStartMark:1,
@@ -377,6 +444,17 @@ export default {
               controStartIdea:this.form.approveIdea,
               id:this.premitId
             }
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已同意）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
           }else if(this.statusText == '监护'){
             params = {
               tutelageStartMark:1,
@@ -384,26 +462,56 @@ export default {
               tutelageStartIdea:this.form.approveIdea,
               id:this.premitId
             }
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已同意）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
           }else if(this.statusText == '领导'){
             params = {
               leadStartMark:1,
               leadStartStime:time,
               leadStartIdea:this.form.approveIdea,
-              mark:1,
               id:this.premitId
             }
-          }
-          approve(params).then(res => {
-            if(res.msg == '审批完成'){
-              this.$message({
-                message: '审批完成（已同意）',
-                type: 'success'
-              })
-              this.$router.go(0)
-            }else{
-              this.$message.error('提交失败')
+            leaderApprove(params).then(res => {
+              if(res.msg == '审批成功'){
+                this.$message({
+                  message: '审批完成（已同意）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
+          }else if(this.statusText == '公司领导'){
+            params = {
+              leaderShipMark:1,
+              leaderShipStime:time,
+              leaderShipIdea:this.form.approveIdea,
+              id:this.premitId,
+              mark:1
             }
-          })
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已同意）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
+          }
+          
         }
       })
     },
@@ -416,11 +524,23 @@ export default {
         if(valid){
           if(this.statusText == '安全'){
             params = {
-              safeMark:1,
+              safeMark:2,
               safeStime:time,
               safeIdea:this.form.approveIdea,
-              id:this.premitId
+              id:this.premitId,
+              mark:2
             }
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已拒绝）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
           }else if(this.statusText == '工程'){
             params = {
               projectMark:2,
@@ -429,6 +549,17 @@ export default {
               id:this.premitId,
               mark:2
             }
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已拒绝）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
           }else if(this.statusText == '生产'){
             params = {
               produceMark:2,
@@ -437,6 +568,17 @@ export default {
               id:this.premitId,
               mark:2
             }
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已拒绝）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
           }else if(this.statusText == '设备'){
             params = {
               deviceMark:2,
@@ -445,6 +587,17 @@ export default {
               id:this.premitId,
               mark:2
             }
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已拒绝）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
           }else if(this.statusText == '监督'){
             params = {
               controStartMark:2,
@@ -453,6 +606,17 @@ export default {
               id:this.premitId,
               mark:2
             }
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已拒绝）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
           }else if(this.statusText == '监护'){
             params = {
               tutelageStartMark:2,
@@ -461,27 +625,56 @@ export default {
               id:this.premitId,
               mark:2
             }
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已拒绝）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
           }else if(this.statusText == '领导'){
             params = {
               leadStartMark:2,
               leadStartStime:time,
               leadStartIdea:this.form.approveIdea,
-              mark:2,
               id:this.premitId
             }
-          }
-          approve(params).then(res => {
-            console.log(res)
-            if(res.msg == '审批完成'){
-              this.$message({
-                message: '审批完成（已拒绝）',
-                type: 'success'
-              })
-              this.$router.go(0)
-            }else{
-              this.$message.error('提交失败')
+            leaderApprove(params).then(res => {
+              if(res.msg == '审批成功'){
+                this.$message({
+                  message: '审批完成（已拒绝）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
+          }else if(this.statusText == '公司领导'){
+            params = {
+              leaderShipMark:2,
+              leaderShipStime:time,
+              leaderShipIdea:this.form.approveIdea,
+              id:this.premitId,
+              mark:2
             }
-          })
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已拒绝）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
+          }
+          
         }
 
       })

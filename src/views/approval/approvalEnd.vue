@@ -1,10 +1,11 @@
 <template>
   <div class="container">
-    <el-table :data="endApproveData" style="width: 100%" max-height="250">
+    <el-table :data="endApproveData"  :default-sort = "{prop: 'numberId', order: 'descending'}"  style="width: 100%" max-height="250">
       <el-table-column
         fixed
         prop="numberId"
         label="许可证编号"
+        sortable
         width="150">
       </el-table-column>
       <el-table-column
@@ -143,7 +144,9 @@ import {getPermitType,getPermitImg} from '@/api/getInfo'
 import { 
   getEndSuperApproveList,
   getEndLeaderApproveList,
-  approve
+  getEndComLeaderApproveList,
+  approve,
+  leaderApproveCom
 } from '@/api/approve'
 import {getSession} from '@/utils/storage'
 export default {
@@ -187,7 +190,7 @@ export default {
         //监督需要审批的数据（收工）
         // wellId:this.userInfo.wellId,
         controlUserId:this.userInfo.id,
-        controStartMark:0
+        controEndMark:0
       }).then(res => {
         if(res.data.length > 0) {
           res.data.forEach(item => {
@@ -202,7 +205,7 @@ export default {
         //监护需要审批的数据（收工）
         // wellId:this.userInfo.wellId,
         tutelageUserId:this.userInfo.id,
-        tutelageStartMark:0
+        tutelageEndMark:0
       }).then(res => {
         if(res.data.length > 0) {
           res.data.forEach(item => {
@@ -216,13 +219,23 @@ export default {
       getEndLeaderApproveList({
         // wellId:this.userInfo.wellId,
         leadUserId:this.userInfo.id,
-        leadStartMark:0
+        leadEndMark:0
       }).then(res => {
         if(res.data.length > 0) {
           res.data.forEach(item => {
             //添加状态
             this.$set(item,'statusId','leader')
             this.$set(item,'statusName','领导')
+            this.endApproveData.push(item)
+          });
+        }
+      })
+      getEndComLeaderApproveList({leaderShipId:this.userInfo.id}).then(res => {
+        if(res.data.length > 0) {
+          res.data.forEach(item => {
+            //添加状态
+            this.$set(item,'statusId','comleader')
+            this.$set(item,'statusName','公司领导')
             this.endApproveData.push(item)
           });
         }
@@ -291,6 +304,17 @@ export default {
               controEndIdea:this.form.endApproveIdea,
               id:this.premitId
             }
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已同意）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
           }else if(this.statusText == '监护'){
             params = {
               tutelageEndMark:1,
@@ -298,26 +322,56 @@ export default {
               tutelageEndIdea:this.form.endApproveIdea,
               id:this.premitId
             }
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已同意）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
           }else if(this.statusText == '领导'){
             params = {
               leadEndMark:1,
               leadEndStime:time,
               leadEndIdea:this.form.endApproveIdea,
-              mark:4,
               id:this.premitId
             }
-          }
-          approve(params).then(res => {
-            if(res.msg == '审批完成'){
-              this.$message({
-                message: '审批完成（已同意）',
-                type: 'success'
-              })
-              this.$router.go(0)
-            }else{
-              this.$message.error('提交失败')
+            leaderApproveCom(params).then(res => {
+              if(res.msg == '审批成功'){
+                this.$message({
+                  message: '审批完成（已同意）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
+          }else if(this.statusText == '公司领导'){
+            params = {
+              leaderShipEndMaek:1,
+              leaderShipEndStime:time,
+              leaderShipEndIdea:this.form.endApproveIdea,
+              id:this.premitId,
+              mark:4
             }
-          })
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已同意）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
+          }
+          
         }
       })
     },
@@ -336,6 +390,17 @@ export default {
               id:this.premitId,
               mark:2
             }
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已拒绝）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
           }else if(this.statusText == '监护'){
             params = {
               tutelageEndMark:2,
@@ -344,27 +409,56 @@ export default {
               id:this.premitId,
               mark:2
             }
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已拒绝）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
           }else if(this.statusText == '领导'){
             params = {
               leadEndMark:2,
               leadEndStime:time,
               leadEndIdea:this.form.endApproveIdea,
-              mark:5,
               id:this.premitId
             }
-          }
-          approve(params).then(res => {
-            console.log(res)
-            if(res.msg == '审批完成'){
-              this.$message({
-                message: '审批完成（已拒绝）',
-                type: 'success'
-              })
-              this.$router.go(0)
-            }else{
-              this.$message.error('提交失败')
+            leaderApproveCom(params).then(res => {
+              if(res.msg == '审批成功'){
+                this.$message({
+                  message: '审批完成（已拒绝）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
+          }else if(this.statusText == '公司领导'){
+            params = {
+              leaderShipEndMaek:2,
+              leaderShipEndStime:time,
+              leaderShipEndIdea:this.form.endApproveIdea,
+              id:this.premitId,
+              mark:5
             }
-          })
+            approve(params).then(res => {
+              if(res.msg == '审批完成'){
+                this.$message({
+                  message: '审批完成（已拒绝）',
+                  type: 'success'
+                })
+                this.$router.go(0)
+              }else{
+                this.$message.error('提交失败')
+              }
+            })
+          }
+          
         }
 
       })
